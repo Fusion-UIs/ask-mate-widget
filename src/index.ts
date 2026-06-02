@@ -1,2 +1,5 @@
 import './index.css'
 export { default as AskMate } from './components/AskMate'
+export { AskMateTrigger } from './components/askMateTrigger'
+export { AskMatePanel } from './components/askMatePanel'
+export { AskMateProvider, useAskMate } from './contexts/AskMateContext'
