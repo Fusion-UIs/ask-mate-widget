@@ -5,6 +5,11 @@ import React, {
     type KeyboardEvent,
     type ChangeEvent,
 } from "react";
+import { Share2, X } from "lucide-react";
+
+import FMateIcon from "../assets/fmate-icon.svg";
+import FMateShortIcon from "../assets/fmate-short-icon.svg";
+
 
 type Message = {
     id: number;
@@ -48,41 +53,6 @@ type AnthropicResponse = {
     }[];
 };
 
-const FMateIcon = () => (
-    <svg
-        width="44"
-        height="44"
-        viewBox="0 0 44 44"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-    >
-        <circle cx="22" cy="22" r="22" fill="white" fillOpacity="0.12" />
-
-        <path
-            d="M22 10C22 10 14 16 14 22C14 26.4 17.6 30 22 30C26.4 30 30 26.4 30 22C30 16 22 10 22 10Z"
-            fill="#A855F7"
-            fillOpacity="0.8"
-        />
-
-        <path
-            d="M19 20L22 14L25 20"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-
-        <circle cx="22" cy="23" r="1.5" fill="white" />
-
-        <path
-            d="M18 27H26"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-        />
-    </svg>
-);
-
 const SendIcon = () => (
     <svg
         width="15"
@@ -97,29 +67,12 @@ const SendIcon = () => (
             strokeLinecap="round"
             strokeLinejoin="round"
         />
-
         <path
             d="M22 2L15 22L11 13L2 9L22 2Z"
             stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-        />
-    </svg>
-);
-
-const CloseIcon = () => (
-    <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-    >
-        <path
-            d="M18 6L6 18M6 6L18 18"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
         />
     </svg>
 );
@@ -149,14 +102,11 @@ const AnimationStyles = () => (
     <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-
-
         @keyframes am-slide-in {
             from {
                 opacity: 0;
                 transform: translateX(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -168,7 +118,6 @@ const AnimationStyles = () => (
                 transform: scale(1);
                 opacity: 0.4;
             }
-
             40% {
                 transform: scale(1.3);
                 opacity: 1;
@@ -214,32 +163,24 @@ export function AskMate({
     defaultOpen = false,
 }: AskMateProps) {
     const [open, setOpen] = useState(defaultOpen);
-
     const [messages, setMessages] = useState<Message[]>([]);
-
     const [input, setInput] = useState("");
-
     const [loading, setLoading] = useState(false);
 
-    const messagesEndRef = useRef<HTMLDivElement | null>(
-        null
-    );
-
-    const inputRef = useRef<HTMLInputElement | null>(
-        null
-    );
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         inputRef.current?.focus();
-
-        messagesEndRef.current?.scrollIntoView({
-            behavior: "smooth",
-        });
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, open]);
+
+    const handleShare = () => {
+
+    };
 
     const handleSend = async (text?: string) => {
         const content = text || input.trim();
-
         if (!content) return;
 
         setInput("");
@@ -251,16 +192,11 @@ export function AskMate({
         };
 
         setMessages((prev) => [...prev, userMsg]);
-
         setLoading(true);
 
         try {
             if (onSend) {
-                const reply = await onSend(
-                    content,
-                    messages
-                );
-
+                const reply = await onSend(content, messages);
                 setMessages((prev) => [
                     ...prev,
                     {
@@ -269,7 +205,6 @@ export function AskMate({
                         content: reply,
                     },
                 ]);
-
                 return;
             }
 
@@ -278,27 +213,15 @@ export function AskMate({
                     "https://api.anthropic.com/v1/messages",
                     {
                         method: "POST",
-
                         headers: {
-                            "Content-Type":
-                                "application/json",
-
+                            "Content-Type": "application/json",
                             "x-api-key": apiKey,
-
-                            "anthropic-version":
-                                "2023-06-01",
+                            "anthropic-version": "2023-06-01",
                         },
-
                         body: JSON.stringify({
-                            model:
-                                "claude-3-haiku-20240307",
-
+                            model: "claude-3-haiku-20240307",
                             max_tokens: 1024,
-
-                            messages: [
-                                ...messages,
-                                userMsg,
-                            ].map((m) => ({
+                            messages: [...messages, userMsg].map((m) => ({
                                 role: m.role,
                                 content: m.content,
                             })),
@@ -306,12 +229,8 @@ export function AskMate({
                     }
                 );
 
-                const data: AnthropicResponse =
-                    await res.json();
-
-                const reply =
-                    data.content?.[0]?.text ||
-                    "No response.";
+                const data: AnthropicResponse = await res.json();
+                const reply = data.content?.[0]?.text || "No response.";
 
                 setMessages((prev) => [
                     ...prev,
@@ -339,8 +258,7 @@ export function AskMate({
                 {
                     id: Date.now() + 1,
                     role: "assistant",
-                    content:
-                        "Something went wrong.",
+                    content: "Something went wrong.",
                 },
             ]);
         } finally {
@@ -354,80 +272,57 @@ export function AskMate({
         <>
             <AnimationStyles />
 
-
-            <div className="fixed top-4 right-4 z-[9999]">
+            <div className="fixed top-4 right-4 z-9999">
                 <button
                     onClick={() => setOpen(!open)}
-                    className="h-9 px-4 rounded-full text-white text-sm font-semibold flex items-center gap-2"
-                    style={{
-                        background: `linear-gradient(135deg, ${accentColor} 0%, #7c3aed 100%)`,
-                    }}
+                    className="h-9 px-4 rounded-full text-black text-sm font-semibold flex items-center gap-2 border-2"
+                    style={{ borderColor: accentColor }}
                 >
-                    <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                    >
-                        <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" />
-                    </svg>
-
+                    <FMateShortIcon />
                     {triggerLabel}
                 </button>
             </div>
 
-
+            {/* PANEL */}
             {open && (
-                <div className="fixed top-[58px] right-0 h-[calc(100vh-58px)] w-[320px] z-[9999] font-['Plus Jakarta Sans']">
+                <div className="fixed top-14.5 right-0 h-[calc(100vh-58px)] w-88 z-9999 font-['Plus Jakarta Sans']">
                     <div className="am-slide-in h-full w-full flex flex-col overflow-hidden border-l border-[#1E293B] bg-black">
 
                         {/* HEADER */}
-
-                        <div className="h-[52px] px-4 border-b border-[#1E293B] flex items-center justify-between bg-[#020617]">
+                        <div className="h-13 px-4 border-b border-[#1E293B] flex items-center justify-between bg-[#020617]">
                             <div className="flex items-center gap-2">
-                                <div
-                                    className="w-6 h-6 rounded-md flex items-center justify-center"
-                                    style={{
-                                        background: `${accentColor}20`,
-                                    }}
-                                >
-                                    <svg
-                                        width="12"
-                                        height="12"
-                                        viewBox="0 0 24 24"
-                                        fill={accentColor}
-                                    >
-                                        <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" />
-                                    </svg>
-                                </div>
-
                                 <span className="text-[12px] font-semibold text-white">
                                     Chat Mate
                                 </span>
                             </div>
 
                             <div className="flex items-center gap-3">
-
-
+                                {/* Share icon (Lucide Share2) */}
                                 <button
-                                    onClick={() =>
-                                        setOpen(false)
-                                    }
+                                    onClick={handleShare}
+                                    className="text-slate-500 hover:text-white transition"
+                                    title="Share"
+                                >
+                                    <Share2 size={15} />
+                                </button>
+
+                                {/* Close icon (Lucide X) */}
+                                <button
+                                    onClick={() => setOpen(false)}
                                     className="text-slate-500 hover:text-white transition"
                                 >
-                                    <CloseIcon />
+                                    <X size={14} />
                                 </button>
                             </div>
                         </div>
 
                         {/* CONTENT */}
-
                         <div className="flex-1 overflow-y-auto scrollbar-thin">
                             {showWelcome ? (
                                 <div className="flex flex-col items-center px-5 pt-10">
 
                                     <div
-                                        className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-4"
+                                        className="rounded-full flex items-center justify-center mb-4"
                                         style={{
                                             background: `linear-gradient(135deg, ${accentColor} 0%, #7c3aed 100%)`,
                                         }}
@@ -435,25 +330,16 @@ export function AskMate({
                                         <FMateIcon />
                                     </div>
 
-                                    <div className="text-[11px] tracking-[0.25em] font-bold uppercase text-[#A855F7] mb-3">
-                                        {botName}
-                                    </div>
-
-                                    <h2 className="text-[28px] leading-[34px] font-bold text-white text-center max-w-[220px] mb-8">
+                                    <h2 className="text-[28px] leading-8.5 font-bold text-white text-center mb-8">
                                         {greeting}
                                     </h2>
 
                                     <div className="w-full flex flex-col gap-3">
-                                        {suggestions.map(
-                                            (s, i) => (
-                                                <button
-                                                    key={i}
-                                                    onClick={() =>
-                                                        handleSend(
-                                                            s.title
-                                                        )
-                                                    }
-                                                    className="
+                                        {suggestions.map((s, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => handleSend(s.title)}
+                                                className="
                                                     group
                                                     flex
                                                     items-center
@@ -466,40 +352,39 @@ export function AskMate({
                                                     border-[#1E293B]
                                                     hover:border-[#334155]
                                                     transition-all
+                                                    relative
+                                                    overflow-hidden
                                                 "
+                                            >
+                                                {/* Colored left accent bar */}
+                                                <span
+                                                    className="absolute left-0 top-0 bottom-0 w-0.75 rounded-l-xl"
+                                                    style={{ background: s.color }}
+                                                />
+
+                                                {/* Icon box with colored border */}
+                                                <div
+                                                    className="w-9 h-9 rounded-lg flex items-center justify-center text-sm border ml-1"
+                                                    style={{
+                                                        background: `${s.color}15`,
+                                                        borderColor: `${s.color}40`,
+                                                    }}
                                                 >
-                                                    <div
-                                                        className="w-9 h-9 rounded-lg flex items-center justify-center text-sm"
-                                                        style={{
-                                                            background: `${s.color}15`,
-                                                            color: s.color,
-                                                        }}
-                                                    >
-                                                        {
-                                                            s.icon
-                                                        }
+                                                    {s.icon}
+                                                </div>
+
+                                                <div className="flex-1 text-left">
+                                                    <div className="text-[13px] font-semibold text-white">
+                                                        {s.title}
                                                     </div>
-
-                                                    <div className="flex-1 text-left">
-                                                        <div className="text-[13px] font-semibold text-white">
-                                                            {
-                                                                s.title
-                                                            }
-                                                        </div>
-
-                                                        <div className="text-[11px] text-slate-500 mt-0.5">
-                                                            {
-                                                                s.description
-                                                            }
-                                                        </div>
+                                                    <div className="text-[11px] text-slate-500 mt-0.5">
+                                                        {s.description}
                                                     </div>
+                                                </div>
 
-                                                    <span className="text-slate-500">
-                                                        ›
-                                                    </span>
-                                                </button>
-                                            )
-                                        )}
+                                                <span className="text-slate-500">›</span>
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             ) : (
@@ -507,30 +392,22 @@ export function AskMate({
                                     {messages.map((m) => (
                                         <div
                                             key={m.id}
-                                            className={`flex ${m.role ===
-                                                "user"
-                                                ? "justify-end"
-                                                : "justify-start"
-                                                }`}
+                                            className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                                         >
                                             <div
-                                                className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${m.role ===
-                                                    "user"
+                                                className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${m.role === "user"
                                                     ? "text-white"
                                                     : "bg-[#0B1120] border border-[#1E293B] text-slate-100"
                                                     }`}
                                                 style={
-                                                    m.role ===
-                                                        "user"
+                                                    m.role === "user"
                                                         ? {
                                                             background: `linear-gradient(135deg, ${accentColor} 0%, #7c3aed 100%)`,
                                                         }
                                                         : {}
                                                 }
                                             >
-                                                {
-                                                    m.content
-                                                }
+                                                {m.content}
                                             </div>
                                         </div>
                                     ))}
@@ -540,66 +417,39 @@ export function AskMate({
                                             <div className="am-typing flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-[#0B1120] border border-[#1E293B]">
                                                 <span
                                                     className="w-1.5 h-1.5 rounded-full"
-                                                    style={{
-                                                        background:
-                                                            accentColor,
-                                                    }}
+                                                    style={{ background: accentColor }}
                                                 />
-
                                                 <span
                                                     className="w-1.5 h-1.5 rounded-full"
-                                                    style={{
-                                                        background:
-                                                            accentColor,
-                                                    }}
+                                                    style={{ background: accentColor }}
                                                 />
-
                                                 <span
                                                     className="w-1.5 h-1.5 rounded-full"
-                                                    style={{
-                                                        background:
-                                                            accentColor,
-                                                    }}
+                                                    style={{ background: accentColor }}
                                                 />
                                             </div>
                                         </div>
                                     )}
 
-                                    <div
-                                        ref={
-                                            messagesEndRef
-                                        }
-                                    />
+                                    <div ref={messagesEndRef} />
                                 </div>
                             )}
                         </div>
 
                         {/* FOOTER */}
-
                         <div className="mt-auto p-3 border-t border-[#1E293B] bg-black">
                             <div className="relative rounded-2xl border border-[#7C3AED] bg-[#0B1120] p-2">
                                 <input
                                     ref={inputRef}
                                     type="text"
                                     value={input}
-                                    onChange={(
-                                        e: ChangeEvent<HTMLInputElement>
-                                    ) =>
-                                        setInput(
-                                            e.target
-                                                .value
-                                        )
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                        setInput(e.target.value)
                                     }
-                                    onKeyDown={(
-                                        e: KeyboardEvent<HTMLInputElement>
-                                    ) =>
-                                        e.key ===
-                                        "Enter" &&
-                                        handleSend()
+                                    onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
+                                        e.key === "Enter" && handleSend()
                                     }
-                                    placeholder={
-                                        placeholder
-                                    }
+                                    placeholder={placeholder}
                                     className="
                                         w-full
                                         bg-transparent
@@ -613,12 +463,8 @@ export function AskMate({
                                 />
 
                                 <button
-                                    onClick={() =>
-                                        handleSend()
-                                    }
-                                    disabled={
-                                        !input.trim()
-                                    }
+                                    onClick={() => handleSend()}
+                                    disabled={!input.trim()}
                                     className="
                                         absolute
                                         right-2
@@ -632,13 +478,8 @@ export function AskMate({
                                         transition-all
                                     "
                                     style={{
-                                        background:
-                                            accentColor,
-
-                                        opacity:
-                                            input.trim()
-                                                ? 1
-                                                : 0.4,
+                                        background: accentColor,
+                                        opacity: input.trim() ? 1 : 0.4,
                                     }}
                                 >
                                     <SendIcon />

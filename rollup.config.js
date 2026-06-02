@@ -3,6 +3,8 @@ import commonjs from '@rollup/plugin-commonjs'
 import typescript from '@rollup/plugin-typescript'
 import postcss from 'rollup-plugin-postcss'
 import peerDepsExternal from 'rollup-plugin-peer-deps-external'
+import svgr from "@svgr/rollup";
+
 
 import tailwindcss from '@tailwindcss/postcss'
 import autoprefixer from 'autoprefixer'
@@ -29,8 +31,9 @@ export default {
     resolve({
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
     }),
-
+    svgr(),
     commonjs(),
+
 
     typescript({
       tsconfig: './tsconfig.json',
