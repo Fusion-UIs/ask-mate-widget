@@ -14,7 +14,7 @@ export function AskMateTrigger({
     return (
         <button
             onClick={() => setOpen(!open)}
-            className="h-9 px-4 rounded-full text-black text-sm font-semibold flex items-center gap-2 border-2"
+            className="h-9 px-4 rounded-full  text-sm font-semibold flex items-center gap-2 border-2"
             style={{ borderColor: accentColor }}
         >
             <FMateShortIcon />
