@@ -5,7 +5,7 @@ import React, {
     type KeyboardEvent,
     type ChangeEvent,
 } from "react";
-import { Share2, X } from "lucide-react";
+import { History, SquareArrowOutUpRight, SquarePlus, ChevronsRight } from "lucide-react";
 
 import FMateIcon from "../assets/fmate-icon.svg";
 import { useAskMate } from "../contexts/AskMateContext";
@@ -57,12 +57,12 @@ const AnimationStyles = () => (
 
     @keyframes am-slide-in {
       from { opacity: 0; transform: translateX(20px); }
-      to   { opacity: 1; transform: translateX(0); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     @keyframes am-dot {
-      0%, 80%, 100% { transform: scale(1);   opacity: 0.4; }
-      40%           { transform: scale(1.3); opacity: 1;   }
+      0%, 80%, 100% { transform: scale(1); opacity: 0.4; }
+      40% { transform: scale(1.3); opacity: 1; }
     }
 
     .am-slide-in { animation: am-slide-in .22s ease; }
@@ -71,40 +71,12 @@ const AnimationStyles = () => (
     .am-typing span:nth-child(2) { animation-delay: .2s; }
     .am-typing span:nth-child(3) { animation-delay: .4s; }
 
-    .am-scrollbar::-webkit-scrollbar       { width: 4px; }
-    .am-scrollbar::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 999px; }
-
-    /* ── Light-mode panel tokens ── */
-    .am-panel {
-      --am-bg:          hsl(var(--background));
-      --am-bg-header:   hsl(var(--card));
-      --am-bg-surface:  hsl(var(--secondary));
-      --am-border:      hsl(var(--border));
-      --am-text:        hsl(var(--foreground));
-      --am-text-muted:  hsl(var(--muted-foreground));
-      --am-input-bg:    hsl(var(--secondary));
-    }
-
-    /* ── Dark-mode panel tokens ── */
-    .dark .am-panel {
-      --am-bg:          oklch(17.218% 0.00706 258.414);
-      --am-bg-header:   oklch(19.927% 0.01111 260.69);
-      --am-bg-surface:  oklch(13% 0.012 260);
-      --am-border:      #1E293B;
-      --am-text:        #ffffff;
-      --am-text-muted:  #475569;
-      --am-input-bg:    oklch(13% 0.012 260);
-    }
-
-    /* Convenience utility classes scoped to .am-panel */
-    .am-panel .am-bg          { background-color: var(--am-bg); }
-    .am-panel .am-bg-header   { background-color: var(--am-bg-header); }
-    .am-panel .am-bg-surface  { background-color: var(--am-bg-surface); }
-    .am-panel .am-border-c    { border-color: var(--am-border); }
-    .am-panel .am-text        { color: var(--am-text); }
-    .am-panel .am-text-muted  { color: var(--am-text-muted); }
+    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
   `}</style>
 );
+
+
 
 export function AskMatePanel({
     greeting = "What are you working on today?",
@@ -124,11 +96,22 @@ export function AskMatePanel({
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
-        if (open) inputRef.current?.focus();
+        if (open) {
+            setMessages([]);
+            setInput("");
+            inputRef.current?.focus();
+        }
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, open]);
 
+
     const handleShare = () => { };
+
+    const handleNewChat = () => {
+        setMessages([]);
+        setInput("");
+        inputRef.current?.focus();
+    };
 
     const handleSend = async (text?: string) => {
         const content = text || input.trim();
@@ -191,172 +174,138 @@ export function AskMatePanel({
         <>
             <AnimationStyles />
 
-            {/*
-             * am-panel  → applies CSS token vars (light or dark via .dark ancestor)
-             * All colour classes below (am-bg, am-border-c, etc.) pull from those vars.
-             */}
-            <div className="am-panel fixed top-14.5 right-0 h-[calc(100vh-58px)] w-88 z-[9999] font-['Plus_Jakarta_Sans']">
-                <div className="am-slide-in am-bg h-full w-full flex flex-col overflow-hidden border-l am-border-c">
+            <div className="fixed top-16 right-1 bottom-1 h-[calc(100vh-58px)] w-88">
+                <div className="am-slide-in h-full w-full flex flex-col overflow-hidden bg-background rounded-2xl">
 
-                    {/* ── HEADER ── */}
-                    <div className="am-bg-header h-13 px-4 border-b am-border-c flex items-center justify-between">
+                    {/* HEADER */}
+                    <div className="h-13 px-4 flex items-center justify-between bg-card">
                         <div className="flex items-center gap-2">
-                            <span className="text-[12px] font-semibold am-text">Chat Mate</span>
+                            <span className="text-[12px] font-semibold">Chat Mate</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={handleShare}
-                                className="am-text-muted hover:am-text transition"
-                                title="Share"
-                            >
-                                <Share2 size={15} />
+                        <div className="flex items-center gap-2.5">
+                            <button className="text-slate-500 hover:text-black dark:hover:text-white transition" title="History">
+                                <History size={14} />
                             </button>
-                            <button
-                                onClick={() => setOpen(false)}
-                                className="am-text-muted hover:am-text transition"
-                            >
-                                <X size={14} />
+                            <button className="text-slate-500 hover:text-black dark:hover:text-white transition" title="Open">
+                                <SquareArrowOutUpRight size={14} />
                             </button>
+                            <button onClick={handleNewChat} className="text-slate-500 hover:text-black dark:hover:text-white transition" title="Layout">
+                                <SquarePlus size={14} />
+                            </button>
+
+                            <button onClick={() => setOpen(false)} className="text-slate-500 hover:text-black dark:hover:text-white transition" title="Expand">
+                                <ChevronsRight size={16} />
+                            </button>
+
                         </div>
                     </div>
 
-                    {/* ── CONTENT ── */}
-                    <div className="flex-1 overflow-y-auto am-scrollbar">
-                        {showWelcome ? (
-                            <div className="flex flex-col items-center px-5 pt-10">
-                                {/* Avatar */}
-                                <div
-                                    className="rounded-full flex items-center justify-center mb-4"
-                                    style={{
-                                        background: `linear-gradient(135deg, ${accentColor} 0%, #7c3aed 100%)`,
-                                    }}
-                                >
-                                    <FMateIcon />
-                                </div>
-
-                                <h2 className="text-[28px] leading-[2.125rem] font-bold am-text text-center mb-8">
-                                    {greeting}
-                                </h2>
-
-                                {/* Suggestion cards */}
-                                <div className="w-full flex flex-col gap-3">
-                                    {suggestions.map((s, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => handleSend(s.title)}
-                                            className="group flex items-center gap-3 px-3 py-3 rounded-xl am-bg-surface border am-border-c hover:opacity-80 transition-all relative overflow-hidden"
-                                        >
-                                            <span
-                                                className="absolute left-0 top-0 bottom-0 w-0.75 rounded-l-xl"
-                                                style={{ background: s.color }}
-                                            />
-                                            <div
-                                                className="w-9 h-9 rounded-lg flex items-center justify-center text-sm border ml-1"
-                                                style={{
-                                                    background: `${s.color}15`,
-                                                    borderColor: `${s.color}40`,
-                                                }}
-                                            >
-                                                {s.icon}
-                                            </div>
-                                            <div className="flex-1 text-left">
-                                                <div className="text-[13px] font-semibold am-text">
-                                                    {s.title}
-                                                </div>
-                                                <div className="text-[11px] am-text-muted mt-0.5">
-                                                    {s.description}
-                                                </div>
-                                            </div>
-                                            <span className="am-text-muted">›</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="px-4 py-4 flex flex-col gap-4">
-                                {messages.map((m) => (
+                    {/* CONTENT + FOOTER wrapped together with border */}
+                    <div
+                        className="flex-1 flex flex-col overflow-hidden mb-3  border-2 rounded-b-2xl"
+                    >
+                        {/* CONTENT */}
+                        <div className="flex-1 overflow-y-auto scrollbar-thin">
+                            {showWelcome ? (
+                                <div className="flex flex-col items-center px-5 pt-10">
                                     <div
-                                        key={m.id}
-                                        className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                                        className="rounded-full flex items-center justify-center mb-4"
+                                        style={{ background: `linear-gradient(135deg, ${accentColor} 0%, #7c3aed 100%)` }}
                                     >
-                                        <div
-                                            className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${m.role === "user"
+                                        <FMateIcon />
+                                    </div>
+
+                                    <h2 className="text-[28px] leading-8.5 font-bold text-center mb-8">
+                                        {greeting}
+                                    </h2>
+
+                                    <div className="w-full flex flex-col gap-3">
+                                        {suggestions.map((s, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => handleSend(s.title)}
+                                                className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-card border hover:opacity-80 transition-all relative overflow-hidden"
+                                            >
+                                                <span className="absolute left-0 top-0 bottom-0 w-0.75 rounded-l-xl" style={{ background: s.color }} />
+                                                <div
+                                                    className="w-9 h-9 rounded-lg flex items-center justify-center text-sm border ml-1"
+                                                    style={{ background: `${s.color}15`, borderColor: `${s.color}40` }}
+                                                >
+                                                    {s.icon}
+                                                </div>
+                                                <div className="flex-1 text-left">
+                                                    <div className="text-[13px] font-semibold">{s.title}</div>
+                                                    <div className="text-[11px] text-muted-foreground mt-0.5">{s.description}</div>
+                                                </div>
+                                                <span className="text-slate-500">›</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="px-4 py-4 flex flex-col gap-4">
+                                    {messages.map((m) => (
+                                        <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                                            <div
+                                                className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap ${m.role === "user"
                                                     ? "text-white"
-                                                    : "am-bg-surface border am-border-c am-text"
-                                                }`}
-                                            style={
-                                                m.role === "user"
-                                                    ? {
-                                                        background: `linear-gradient(135deg, ${accentColor} 0%, #7c3aed 100%)`,
-                                                    }
-                                                    : {}
-                                            }
-                                        >
-                                            {m.content}
+                                                    : "bg-card border"
+                                                    }`}
+                                                style={
+                                                    m.role === "user"
+                                                        ? { background: `linear-gradient(135deg, ${accentColor} 0%, #7c3aed 100%)` }
+                                                        : {}
+                                                }
+                                            >
+                                                {m.content}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
 
-                                {loading && (
-                                    <div className="flex">
-                                        <div className="am-typing flex items-center gap-1.5 px-4 py-3 rounded-2xl am-bg-surface border am-border-c">
-                                            <span
-                                                className="w-1.5 h-1.5 rounded-full"
-                                                style={{ background: accentColor }}
-                                            />
-                                            <span
-                                                className="w-1.5 h-1.5 rounded-full"
-                                                style={{ background: accentColor }}
-                                            />
-                                            <span
-                                                className="w-1.5 h-1.5 rounded-full"
-                                                style={{ background: accentColor }}
-                                            />
+                                    {loading && (
+                                        <div className="flex">
+                                            <div className="am-typing flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-[#0B1120] border border-[#1E293B]">
+                                                <span className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor }} />
+                                                <span className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor }} />
+                                                <span className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor }} />
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                <div ref={messagesEndRef} />
-                            </div>
-                        )}
-                    </div>
+                                    <div ref={messagesEndRef} />
+                                </div>
+                            )}
+                        </div>
 
-                    {/* ── FOOTER ── */}
-                    <div className="mt-auto p-3 border-t am-border-c am-bg">
-                        <div
-                            className="relative rounded-2xl p-2"
-                            style={{
-                                background: "var(--am-input-bg)",
-                                border: `1.5px solid ${accentColor}`,
-                            }}
-                        >
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                value={input}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-                                onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
-                                    e.key === "Enter" && handleSend()
-                                }
-                                placeholder={placeholder}
-                                className="w-full bg-transparent border-none outline-none text-[13px] am-text placeholder:am-text-muted pr-10"
-                            />
-                            <button
-                                onClick={() => handleSend()}
-                                disabled={!input.trim()}
-                                className="absolute right-2 bottom-2 w-7 h-7 rounded-full flex items-center justify-center transition-all text-white"
+                        {/* FOOTER*/}
+                        <div className="p-3">
+                            <div className="relative rounded-2xl p-2 bg-input"
                                 style={{
-                                    background: accentColor,
-                                    opacity: input.trim() ? 1 : 0.4,
-                                }}
-                            >
-                                <SendIcon />
-                            </button>
+                                    border: `1.5px solid ${accentColor}`,
+                                }}>
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={input}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                                    onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleSend()}
+                                    placeholder={placeholder}
+                                    className="w-full bg-transparent border-none outline-none text-[13px] placeholder:text-muted-foreground pr-10"
+                                />
+                                <button
+                                    onClick={() => handleSend()}
+                                    disabled={!input.trim()}
+                                    className="absolute right-2 bottom-2 w-7 h-7 rounded-full flex items-center justify-center transition-all"
+                                    style={{ background: accentColor, opacity: input.trim() ? 1 : 0.4 }}
+                                >
+                                    <SendIcon />
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                 </div>
-            </div>
+            </div >
         </>
     );
 }
